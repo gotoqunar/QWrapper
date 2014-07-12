@@ -13,7 +13,6 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.lang.StringUtils;
 
-//import com.gotowhere.util.MyUtil;
 import com.qunar.qfwrapper.bean.booking.BookingInfo;
 import com.qunar.qfwrapper.bean.booking.BookingResult;
 import com.qunar.qfwrapper.bean.search.FlightDetail;
@@ -237,8 +236,8 @@ public class Wrapper_gjsairz8001 implements QunarCrawler {
 
 	@Override
 	public ProcessResultInfo process(String html, FlightSearchParam param) {
-		//String dcPath = "D:\\thisismywork\\QWrapperTemplate_Java\\src\\com\\gotowhere\\rw140708\\amaszonas\\shuangcheng.txt";
-		//html = MyUtil.readFile(dcPath);
+//		String dcPath = "D:\\thisismywork\\QWrapperTemplate_Java\\src\\com\\gotowhere\\rw140708\\amaszonas\\shuangcheng.txt";
+//		html = MyUtil.readFile(dcPath);
 		ProcessResultInfo result = new ProcessResultInfo();
 		// 判断非正常情况
 		if ("Exception".equals(html)) {
@@ -608,14 +607,14 @@ public class Wrapper_gjsairz8001 implements QunarCrawler {
 		searchParam.setTimeOut("60000");
 		searchParam.setToken("");
 		// 测试抓取网页 开始
-		// String html = new Wrapper_gjsairz8001().getHtml(searchParam);
+		 String html = new Wrapper_gjsairz8001().getHtml(searchParam);
 		// System.out.println(html);
 		// 测试抓取网页 结束
 		// if (1 == 1) {
 		// return;
 		// }
 		// 测试解析网页 开始
-		ProcessResultInfo result = new Wrapper_gjsairz8001().process(null,
+		ProcessResultInfo result = new Wrapper_gjsairz8001().process(html,
 				searchParam);
 		if (result.isRet() && result.getStatus().equals(Constants.SUCCESS)) {
 			List<RoundTripFlightInfo> flightList = (List<RoundTripFlightInfo>) result
