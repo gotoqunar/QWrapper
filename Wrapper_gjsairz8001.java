@@ -1,3 +1,5 @@
+package com.gotowhere.rw140708.amaszonas;
+
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -236,8 +238,9 @@ public class Wrapper_gjsairz8001 implements QunarCrawler {
 
 	@Override
 	public ProcessResultInfo process(String html, FlightSearchParam param) {
-//		String dcPath = "D:\\thisismywork\\QWrapperTemplate_Java\\src\\com\\gotowhere\\rw140708\\amaszonas\\shuangcheng.txt";
-//		html = MyUtil.readFile(dcPath);
+		// String dcPath =
+		// "D:\\thisismywork\\QWrapperTemplate_Java\\src\\com\\gotowhere\\rw140708\\amaszonas\\shuangcheng.txt";
+		// html = MyUtil.readFile(dcPath);
 		ProcessResultInfo result = new ProcessResultInfo();
 		// 判断非正常情况
 		if ("Exception".equals(html)) {
@@ -264,36 +267,23 @@ public class Wrapper_gjsairz8001 implements QunarCrawler {
 		try {
 
 			// 解析去程航班
-			List<RoundTripFlightInfo> infoList = processDanGe(htmls[0], param.getDepDate(),param.getDep(),param.getArr(),param.getWrapperid());
+			List<RoundTripFlightInfo> infoList = processDanGe(htmls[0],
+					param.getDepDate(), param.getDep(), param.getArr(),
+					param.getWrapperid());
 			// 解析返航航班
-			List<RoundTripFlightInfo> retinfo = processDanGe(htmls[1], param.getRetDate(),param.getArr(),param.getDep(),param.getWrapperid());
-//			System.out.println(htmls[1]);
+			List<RoundTripFlightInfo> retinfo = processDanGe(htmls[1],
+					param.getRetDate(), param.getArr(), param.getDep(),
+					param.getWrapperid());
+			// System.out.println(htmls[1]);
 			// 合并成往返信息
 			List<RoundTripFlightInfo> flightList = new ArrayList<RoundTripFlightInfo>();
 			for (int i = 0; i < infoList.size(); i++) {
 				RoundTripFlightInfo qu = infoList.get(i);
 				for (int j = 0; j < retinfo.size(); j++) {
 					RoundTripFlightInfo hui = retinfo.get(j);
-					RoundTripFlightInfo roundTripFlightInfo = new RoundTripFlightInfo();
-					// 1. 去的信息
-					// 1.0 info list储存航段信息
-					roundTripFlightInfo.setInfo(qu.getInfo());
-					// 1.2 detail储存航线的基本信息（包括票价，税费等）
-					roundTripFlightInfo.setDetail(qu.getDetail());
-					// 1.3 outboundPrice 去程价格
-					roundTripFlightInfo.setOutboundPrice(qu.getOutboundPrice());
-					// 2 返航信息
-					// 2.0 retdepdate 返程日期，格式为YYYY-MM-DD，例如2014-06-12
-					roundTripFlightInfo.setRetdepdate(hui.getDetail()
-							.getDepdate());
-					// 2.1 retflightno 返程航班号list，航班号一般在航班有中转时为多个
-					roundTripFlightInfo.setRetflightno(hui.getDetail()
-							.getFlightno());
-					// 2.2 retinfo 返程航段信息
-					roundTripFlightInfo.setRetinfo(hui.getInfo());
-					// 2.3 returnedPrice 返程价格
-					roundTripFlightInfo.setReturnedPrice(hui.getDetail()
-							.getPrice());
+					RoundTripFlightInfo roundTripFlightInfo = createRoundTrip(
+							qu, hui);
+
 					flightList.add(roundTripFlightInfo);
 				}
 			}
@@ -309,9 +299,112 @@ public class Wrapper_gjsairz8001 implements QunarCrawler {
 		}
 	}
 
+	/**
+	 * 创建新的结果
+	 * 
+	 * @param qu
+	 * @param hui
+	 * @return
+	 */
+	private RoundTripFlightInfo createRoundTrip(RoundTripFlightInfo qu,
+			RoundTripFlightInfo hui) {
+		RoundTripFlightInfo roundTripFlightInfo = new RoundTripFlightInfo();
+		// 1. 去的信息
+		// 1.0 info list储存航段信息
+		// 克隆List<FlightSegement>
+		List<FlightSegement> info = cloneFlightSegementList(qu.getInfo());
+		roundTripFlightInfo.setInfo(info);
+		// 1.2 detail储存航线的基本信息（包括票价，税费等）
+		// 克隆FlightDetail
+		FlightDetail quDetail = cloneFlightDetail(qu.getDetail());
+		roundTripFlightInfo.setDetail(quDetail);
+		// 1.3 outboundPrice 去程价格
+		roundTripFlightInfo.setOutboundPrice(qu.getDetail().getPrice());
+
+		// 2 返航信息
+		// 2.0 retdepdate 返程日期，格式为YYYY-MM-DD，例如2014-06-12
+		roundTripFlightInfo.setRetdepdate(hui.getDetail().getDepdate());
+		// 2.1 retflightno 返程航班号list，航班号一般在航班有中转时为多个
+		List huiFlightnoL = cloneStringList(hui.getDetail().getFlightno());
+		roundTripFlightInfo.setRetflightno(huiFlightnoL);
+		// 2.2 retinfo 返程航段信息
+		List<FlightSegement> huiRetinfoL = cloneFlightSegementList(hui.getInfo());
+		roundTripFlightInfo.setRetinfo(huiRetinfoL);
+		// 2.3 returnedPrice 返程价格
+		roundTripFlightInfo.setReturnedPrice(hui.getDetail().getPrice());
+		//3.1 合并总价格
+		double zhongjia = roundTripFlightInfo.getOutboundPrice()+roundTripFlightInfo.getReturnedPrice();
+		roundTripFlightInfo.getDetail().setPrice(zhongjia);
+		return roundTripFlightInfo;
+	}
+
+	/**
+	 * 克隆FlightDetail
+	 * 
+	 * @param detail
+	 * @return
+	 */
+	private FlightDetail cloneFlightDetail(FlightDetail detail) {
+		FlightDetail newDetail = new FlightDetail();
+		newDetail.setArrcity(detail.getArrcity());
+		newDetail.setCreatetime(detail.getCreatetime());
+		newDetail.setDepcity(detail.getDepcity());
+		newDetail.setDepdate(detail.getDepdate());
+		List flightnoL = cloneStringList(detail.getFlightno());
+		newDetail.setFlightno(flightnoL);
+		newDetail.setMonetaryunit(detail.getMonetaryunit());
+		newDetail.setPrice(detail.getPrice());
+		newDetail.setSource(detail.getSource());
+		newDetail.setStatus(detail.getStatus());
+		newDetail.setTax(detail.getTax());
+		newDetail.setUpdatetime(detail.getUpdatetime());
+		newDetail.setWrapperid(detail.getWrapperid());
+		return newDetail;
+	}
+
+	/**
+	 * 克隆Flightno
+	 * 
+	 * @param flightno
+	 * @return
+	 */
+	private List cloneStringList(List<String> flightno) {
+		List flightnoL = new ArrayList(flightno.size());
+		for (int i = 0; i < flightno.size(); i++) {
+			flightnoL.add(flightno.get(i));
+		}
+		return flightnoL;
+	}
+
+	/**
+	 * 克隆List<FlightSegement>
+	 * 
+	 * @param info
+	 * @return
+	 */
+	private List<FlightSegement> cloneFlightSegementList(
+			List<FlightSegement> info) {
+		List<FlightSegement> list = new ArrayList<FlightSegement>(info.size());
+		for (int i = 0; i < info.size(); i++) {
+			FlightSegement oldFs = info.get(i);
+			FlightSegement fs = new FlightSegement();
+			fs.setArrairport(oldFs.getArrairport());
+			fs.setArrDate(oldFs.getArrDate());
+			fs.setArrtime(oldFs.getArrtime());
+			fs.setAvcanbin(oldFs.getAvcanbin());
+			fs.setCompany(oldFs.getCompany());
+			fs.setDepairport(oldFs.getDepairport());
+			fs.setDepDate(oldFs.getDepDate());
+			fs.setDeptime(oldFs.getDeptime());
+			fs.setFlightno(oldFs.getFlightno());
+			list.add(fs);
+		}
+		return list;
+	}
+
 	// 单个解析航班信息
-	private List<RoundTripFlightInfo> processDanGe(String html,
-			String depDate,String dep,String arr,String wrapperid) throws ParseException {
+	private List<RoundTripFlightInfo> processDanGe(String html, String depDate,
+			String dep, String arr, String wrapperid) throws ParseException {
 		List<RoundTripFlightInfo> flightList = new ArrayList<RoundTripFlightInfo>();
 		String[] htmls = html.split("[$]{30}");
 		// 航班主题信息
@@ -415,7 +508,7 @@ public class Wrapper_gjsairz8001 implements QunarCrawler {
 		// 到达机场三字码
 		String arrairport = "";
 
-//		whereToWhere = "La Paz (LPB) - Cochabamba (CBB)";
+		// whereToWhere = "La Paz (LPB) - Cochabamba (CBB)";
 		int kuohu1 = whereToWhere.indexOf("(");
 		int kuohu2 = whereToWhere.indexOf(")");
 		// 出发机场名称
@@ -607,7 +700,7 @@ public class Wrapper_gjsairz8001 implements QunarCrawler {
 		searchParam.setTimeOut("60000");
 		searchParam.setToken("");
 		// 测试抓取网页 开始
-		 String html = new Wrapper_gjsairz8001().getHtml(searchParam);
+		String html = new Wrapper_gjsairz8001().getHtml(searchParam);
 		// System.out.println(html);
 		// 测试抓取网页 结束
 		// if (1 == 1) {
@@ -623,13 +716,14 @@ public class Wrapper_gjsairz8001 implements QunarCrawler {
 				System.out.println("************" + in.getInfo().toString());
 				System.out.println("************" + in.getRetinfo().toString());
 				System.out.println("++++++++++++" + in.getDetail().toString());
+				System.out.println("++++++++++++" + in.getOutboundPrice()
+						+ "  " + in.getReturnedPrice());
 			}
 		} else {
 			System.out.println(result.getStatus());
 		}
 		System.out.println("");
 		// 测试解析网页 结束
-		
 	}
 
 }
