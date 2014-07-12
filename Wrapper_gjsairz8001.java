@@ -13,6 +13,7 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.lang.StringUtils;
 
+import com.gotowhere.util.MyUtil;
 import com.qunar.qfwrapper.bean.booking.BookingInfo;
 import com.qunar.qfwrapper.bean.booking.BookingResult;
 import com.qunar.qfwrapper.bean.search.FlightDetail;
@@ -236,9 +237,8 @@ public class Wrapper_gjsairz8001 implements QunarCrawler {
 
 	@Override
 	public ProcessResultInfo process(String html, FlightSearchParam param) {
-		// String dcPath =
-		// "D:\\thisismywork\\QWrapperTemplate_Java\\src\\com\\gotowhere\\rw140708\\amaszonas\\shuangcheng.txt";
-		// html = MyUtil.readFile(dcPath);
+		String dcPath = "D:\\thisismywork\\QWrapperTemplate_Java\\src\\com\\gotowhere\\rw140708\\amaszonas\\shuangcheng.txt";
+		html = MyUtil.readFile(dcPath);
 		ProcessResultInfo result = new ProcessResultInfo();
 		// 判断非正常情况
 		if ("Exception".equals(html)) {
@@ -265,10 +265,10 @@ public class Wrapper_gjsairz8001 implements QunarCrawler {
 		try {
 
 			// 解析去程航班
-			List<RoundTripFlightInfo> infoList = processDanGe(htmls[0], param);
+			List<RoundTripFlightInfo> infoList = processDanGe(htmls[0], param.getDepDate(),param.getDep(),param.getArr(),param.getWrapperid());
 			// 解析返航航班
-			List<RoundTripFlightInfo> retinfo = processDanGe(htmls[1], param);
-
+			List<RoundTripFlightInfo> retinfo = processDanGe(htmls[1], param.getRetDate(),param.getArr(),param.getDep(),param.getWrapperid());
+//			System.out.println(htmls[1]);
 			// 合并成往返信息
 			List<RoundTripFlightInfo> flightList = new ArrayList<RoundTripFlightInfo>();
 			for (int i = 0; i < infoList.size(); i++) {
@@ -312,7 +312,7 @@ public class Wrapper_gjsairz8001 implements QunarCrawler {
 
 	// 单个解析航班信息
 	private List<RoundTripFlightInfo> processDanGe(String html,
-			FlightSearchParam param) throws ParseException {
+			String depDate,String dep,String arr,String wrapperid) throws ParseException {
 		List<RoundTripFlightInfo> flightList = new ArrayList<RoundTripFlightInfo>();
 		String[] htmls = html.split("[$]{30}");
 		// 航班主题信息
@@ -332,7 +332,7 @@ public class Wrapper_gjsairz8001 implements QunarCrawler {
 			String jiage1 = processJiage(htmls[i]);
 			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 			// 出发日期，格式为YYYY-MM-DD
-			flightDetail.setDepdate(format.parse(param.getDepDate()));
+			flightDetail.setDepdate(format.parse(depDate));
 			// 航班号list，航班号一般在航班有中转时为多个
 			flightDetail.setFlightno(flightNoList);
 			// 货币单位
@@ -341,17 +341,16 @@ public class Wrapper_gjsairz8001 implements QunarCrawler {
 			// 最低票价
 			flightDetail.setPrice(price);
 			// 出发城市或机场，三字码
-			flightDetail.setDepcity(param.getDep());
+			flightDetail.setDepcity(dep);
 			// 到达城市或机场，三字码
-			flightDetail.setArrcity(param.getArr());
+			flightDetail.setArrcity(arr);
 			// wrapper的id
-			flightDetail.setWrapperid(param.getWrapperid());
+			flightDetail.setWrapperid(wrapperid);
 
 			String xuhao = bodyHtmls[bodyHtmlsI].trim();
 			if (xuhao.equals(i + "")) {
-				param.getRetDate();
 				seg = processFlightSegement(bodyHtmlsI + 1, bodyHtmls,
-						flightNoList, param.getDepDate());
+						flightNoList, depDate);
 				info.add(seg);
 				bodyHtmlsI += 5;
 			}
@@ -360,7 +359,7 @@ public class Wrapper_gjsairz8001 implements QunarCrawler {
 				String xuhao2 = bodyHtmls[bodyHtmlsI].trim();
 				while (!xuhao2.equals((i + 1) + "")) {
 					seg = processFlightSegement(bodyHtmlsI, bodyHtmls,
-							flightNoList, param.getDepDate());
+							flightNoList, depDate);
 					info.add(seg);
 					bodyHtmlsI += 5;
 					if (bodyHtmlsI >= bodyHtmls.length) {
@@ -417,7 +416,7 @@ public class Wrapper_gjsairz8001 implements QunarCrawler {
 		// 到达机场三字码
 		String arrairport = "";
 
-		whereToWhere = "La Paz (LPB) - Cochabamba (CBB)";
+//		whereToWhere = "La Paz (LPB) - Cochabamba (CBB)";
 		int kuohu1 = whereToWhere.indexOf("(");
 		int kuohu2 = whereToWhere.indexOf(")");
 		// 出发机场名称
@@ -609,20 +608,21 @@ public class Wrapper_gjsairz8001 implements QunarCrawler {
 		searchParam.setTimeOut("60000");
 		searchParam.setToken("");
 		// 测试抓取网页 开始
-		 String html = new Wrapper_gjsairz8001().getHtml(searchParam);
+		// String html = new Wrapper_gjsairz8001().getHtml(searchParam);
 		// System.out.println(html);
 		// 测试抓取网页 结束
 		// if (1 == 1) {
 		// return;
 		// }
 		// 测试解析网页 开始
-		ProcessResultInfo result = new Wrapper_gjsairz8001().process(html,
+		ProcessResultInfo result = new Wrapper_gjsairz8001().process(null,
 				searchParam);
 		if (result.isRet() && result.getStatus().equals(Constants.SUCCESS)) {
 			List<RoundTripFlightInfo> flightList = (List<RoundTripFlightInfo>) result
 					.getData();
 			for (RoundTripFlightInfo in : flightList) {
 				System.out.println("************" + in.getInfo().toString());
+				System.out.println("************" + in.getRetinfo().toString());
 				System.out.println("++++++++++++" + in.getDetail().toString());
 			}
 		} else {
