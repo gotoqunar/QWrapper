@@ -13,7 +13,7 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.lang.StringUtils;
 
-import com.gotowhere.util.MyUtil;
+//import com.gotowhere.util.MyUtil;
 import com.qunar.qfwrapper.bean.booking.BookingInfo;
 import com.qunar.qfwrapper.bean.booking.BookingResult;
 import com.qunar.qfwrapper.bean.search.FlightDetail;
@@ -237,8 +237,8 @@ public class Wrapper_gjsairz8001 implements QunarCrawler {
 
 	@Override
 	public ProcessResultInfo process(String html, FlightSearchParam param) {
-		String dcPath = "D:\\thisismywork\\QWrapperTemplate_Java\\src\\com\\gotowhere\\rw140708\\amaszonas\\shuangcheng.txt";
-		html = MyUtil.readFile(dcPath);
+		//String dcPath = "D:\\thisismywork\\QWrapperTemplate_Java\\src\\com\\gotowhere\\rw140708\\amaszonas\\shuangcheng.txt";
+		//html = MyUtil.readFile(dcPath);
 		ProcessResultInfo result = new ProcessResultInfo();
 		// 判断非正常情况
 		if ("Exception".equals(html)) {
