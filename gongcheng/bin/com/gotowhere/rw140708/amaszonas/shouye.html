@@ -1,0 +1,294 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Amaszonas</title>
+<link rel="stylesheet" type="text/css"
+	href="Styles/960grid/960_24_col.css" />
+<link rel="stylesheet" type="text/css" href="Styles/960grid/reset.css" />
+<link rel="stylesheet" type="text/css" href="Styles/960grid/text.css" />
+<link rel="stylesheet" type="text/css" href="css/css.css" />
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<link href="calendario_jq/css/ui-lightness/jquery-ui-1.9.1.custom.css"
+	rel="stylesheet">
+<script type="text/javascript" language="javascript"
+	src="js/jquery-1.9.0.min.js"></script>
+<script language="javascript" type="text/javascript">
+	
+</script>
+<script src="calendario_jq/js/jquery-ui-1.9.1.custom.js"></script>
+<script src="calendario_jq/js/calendario_es.js"></script>
+<script src="js/fu.js"></script>
+<script language="javascript" type="text/javascript" src="js/combos.js"></script>
+<script>
+	function verificaDis(idioma) {
+		verificaDis_ida("");
+	}
+	function enviar_new() {
+		var num_b = $("#bebes").val();
+		var num_a = $("#adultos").val();
+		var num_m = $("#ninos").val();
+		if (num_b > num_a) {
+			alert($("#msn1").val());
+		} else {
+			if (num_m > num_a) {
+				alert($("#msn2").val());
+			} else {
+				$("#Buscar").attr('disabled', true);
+				$("#ventas").submit();
+			}
+		}
+	}
+
+	function setEstado(te, id, monto, mon) {
+		$('#Button').show();
+		$('#montos_label').show();
+		var jqxhr = $
+				.ajax({
+					type : "POST",
+					url : "server/actu_estado.php",
+					data : {
+						it : "11980202210-20140708092636-206698596453bbf18c88d404-98448428",
+						tipo_new : te,
+						id : id,
+						monto : monto,
+						mon : mon
+					},
+					cache : false,
+					dataType : "html",
+					beforeSend : function(data) {
+
+						$('#montos_label')
+								.html(
+										'_$tag______________________________________________');
+					}
+				});
+		jqxhr.done(function(html) {
+			$("#montos_label").html(html);
+		});
+	}
+
+	function verificaDis_ida(fecha) {
+		$("#botonnn").html('');
+		var jqxhr = $
+				.ajax({
+					type : "POST",
+					url : "server/avail_ajax.php",
+					data : {
+						it : "11980202210-20140708092636-206698596453bbf18c88d404-98448428",
+						tipo_new : "1",
+						fechaaux : fecha
+					},
+					cache : false,
+					dataType : "html",
+					beforeSend : function(data) {
+						$('#contenido_ida')
+								.html(
+										'_$tag______________________________________________________________________$tag_______________________________________________$tag_');
+					}
+				});
+		jqxhr.done(function(html) {
+			$("#contenido_ida").html(html);
+		});
+		jqxhr
+				.fail(function() {
+					$("#contenido_ida")
+							.html(
+									'_$t_$taEl servidor se encuentra ocupado por favor intente nuevamente._$taThe server is busy, please try again._$tag_$ta');
+
+				})
+	}
+
+	function verificaDis_vuelta(fecha) {
+		$("#botonnn").html('');
+		var jqxhr = $
+				.ajax({
+					type : "POST",
+					url : "server/avail_ajax.php",
+					data : {
+						it : "11980202210-20140708092636-206698596453bbf18c88d404-98448428",
+						tipo_new : "2",
+						fechaaux : fecha
+					},
+					cache : false,
+					dataType : "html",
+					beforeSend : function(data) {
+						$('#contenido_vuelta')
+								.html(
+										'_$tag______________________________________________________________________$tag_______________________________________________$tag_');
+					}
+				});
+		jqxhr.done(function(html) {
+			$("#contenido_vuelta").html(html);
+
+			ContendorLateral
+		});
+		jqxhr
+				.fail(function() {
+					$("#contenido_vuelta")
+							.html(
+									'_$t_$taEl servidor se encuentra ocupado por favor intente nuevamente._$taThe server is busy, please try again._$tag_$ta');
+
+				})
+	}
+
+	function set_costo(varid, tipo, div, op) {
+
+		/*if(tipo==1)
+		 var estado=$('#Vuelo_ida'+varid).checked ;
+		else	 
+				var estado=$('#Vuelo_vuelta'+varid).checked ;
+		if(estado)	
+		{$('#fila'+tipo+varid).addClass('resaltado');
+		}	*/
+		var jqxhr = $
+				.ajax({
+					type : "POST",
+					url : "server/fare_ajax.php",
+					data : {
+						it : "11980202210-20140708092636-206698596453bbf18c88d404-98448428",
+						id : varid,
+						ti : tipo,
+						nop : op
+					},
+					cache : false,
+					dataType : "html",
+					beforeSend : function(data) {
+						$('#' + div).html(
+								'_$tag_______________________________');
+					}
+				});
+		jqxhr.done(function(html) {
+			$("#" + div).html(html);
+		});
+		jqxhr.fail(function() {
+			$("#" + div).html('no disponible');
+
+		})
+	}
+</script>
+<script>
+	function envia() {
+		var num_b = document.reserva.aceptar.checked;
+		if (num_b) {
+			$('#Button').disabled = true
+			//document.reserva.Button.disabled=true;
+			document.reserva.submit();
+		} else { //document.reserva.Button.disabled=false;
+			//$('#Button').disabled=false
+			alert(" You must accept the conditions for refunds. ");
+		}
+	}
+</script>
+</head>
+<body onload="verificaDis(1)">
+	<div id="header" class="container_24 clearfix">
+		<div class="stiloPasos">
+			<div class="grid_8">
+				<img src="images/logo_Amaszonas.png" alt="Amaszonas">
+			</div>
+			<div class="grid_14">
+				<br>
+				<table width="600" height="60" border="0" cellpadding="0"
+					cellspacing="0">
+					<tr style="background: url(images/linea.fw.png)">
+						<td width="30"><img src="images/111111111Untitled-2.fw.png"
+							alt=""></td>
+						<td width="68" height="30">&nbsp;</td>
+						<td width="30"><img src="images/Untitled-2.fw.png" alt=""></td>
+						<td width="69">&nbsp;</td>
+						<td width="30"><img src="images/111111111Untitled-2.fw.png"></td>
+						<td width="66">&nbsp;</td>
+						<td width="30"><img src="images/111111111Untitled-2.fw.png"
+							alt=""></td>
+						<td width="59">&nbsp;</td>
+						<td width="30"><img src="images/111111111Untitled-2.fw.png"
+							alt=""></td>
+						<td width="58">&nbsp;</td>
+					</tr>
+					<tr>
+						<td height="30" colspan="2"><a href="index.php">Search</a></td>
+						<td colspan="2">Flights/Fare</td>
+						<td colspan="2">Passengers</td>
+						<td colspan="2">Buy it now</td>
+						<td colspan="2">Confirm</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div id="content" class="container_24 clearfix">
+		<div class="grid_18">
+			<div id="contenido_body">
+				<form name="reserva" action="paxs.php" method="post">
+					<input name="it" type="hidden"
+						value="11980202210-20140708092636-206698596453bbf18c88d404-98448428">
+					<div id="contenido_ida"></div>
+					<div id="contenido_vuelta"></div>
+					<br>
+					<hr>
+					<strong style="font-size: 14px; color: #FF0000"> In case
+						the ticket is not used by passenger decision, and the fare you
+						paid for allows for refund, there will be a 25% deduction for
+						taxes, credit card commission and administrative expenses.</strong> <label>
+						<h3>
+							I understand the conditions for repayments <input name="aceptar"
+								type="checkbox" id="aceptar" value="Aceptar">
+						</h3>
+					</label>
+					<div>
+						<input name="Button" type="button" id="Button"
+							class="botom_buscar_reserva" onClick="envia();" value="Continue">
+					</div>
+				</form>
+			</div>
+		</div>
+		<div class="grid_6">
+			<div id="contendor_iz">
+				<div id="ContendorLateral">
+					<div id="titulo_resumen">Resumen</div>
+					<div id="VueloIdaResumen">
+						<div class="titulo_lateral">Going flight</div>
+						<div class="contenido_resumen">La Paz (LPB)</div>
+						<div class="contenido_resumen">Santa Cruz (VVI)</div>
+						<div class="contenido_resumen">Wednesday, 9 July 2014</div>
+					</div>
+					<div id="VueloRetornboResumen"></div>
+					<div id="PasjerosResumen">
+						<div class="titulo_lateral">Passengers</div>
+						<div class="contenido_resumen">Adultos 1</div>
+					</div>
+					<div id="CostoResumen">
+						<div class="titulo_lateral_costo">Costo Total</div>
+						<div id="montos_label"></div>
+					</div>
+					<div>
+						<form action="index.php?i=1" method="post">
+							<input name="" type="submit" class="botom_buscar"
+								value="New search">
+						</form>
+					</div>
+				</div>
+
+
+
+				<div class="costo_vuelos"></div>
+
+			</div>
+		</div>
+	</div>
+	<hr>
+	<div id="footer" class="container_24 clearfix">
+		<div class="grid_24">
+			<div class="pie">
+				<p align="center">
+					Línea Aérea Amaszonas S.A.- Compañía de Servicios de Transporte
+					Aéreo <br> Tel. : (591) 901-10-5500 - Email:
+					info@amaszonas.com <br> Av. Saavedra N° 1649 - Miraflores La
+					Paz, Bolivia
+				</p>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
