@@ -1,5 +1,3 @@
-package com.gotowhere.rw140708.amaszonas;
-
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
