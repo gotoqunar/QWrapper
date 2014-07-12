@@ -477,7 +477,7 @@ public class Wrapper_gjsairz8001 implements QunarCrawler {
 			String[] htmls, List<String> flightNoList, String depDate) {
 		FlightSegement seg = new FlightSegement();
 		// 航班号
-		String flightno = htmls[bodyHtmlsI].trim();
+		String flightno = "Z8"+htmls[bodyHtmlsI].trim();
 		// 从哪儿到哪儿
 		String whereToWhere = htmls[bodyHtmlsI + 1].trim();
 		// 解析出发机场和到达机场
